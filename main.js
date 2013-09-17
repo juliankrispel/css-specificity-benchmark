@@ -27,7 +27,6 @@ Count = (function() {
 })();
 
 points = {
-  classes: 1,
   attribute: 2,
   pseudo: 3,
   nesting: [null, 4, 6, 10, 15, 30, 50, 70, 100, 130, 160, 200, 250, 330, 400]
@@ -36,9 +35,6 @@ points = {
 giveScore = function(count) {
   var key, score, value, _i, _len, _ref;
   score = 0;
-  if (count.classes) {
-    score += count.classes * points.classes;
-  }
   if (count.attribute) {
     score += count.attribute * points.attribute;
   }
