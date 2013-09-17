@@ -1,6 +1,12 @@
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var Count, ajaxRequest, analyse, bytesToSize, countNesting, countSelectorType, countSelectors, css, fs, giveScore, init, libraries, points, renderData, _;
 
+css = require('css');
+
+fs = require('fs');
+
+_ = require('underscore');
+
 Count = (function() {
   function Count() {
     this.nesting = [];
@@ -48,12 +54,6 @@ giveScore = function(count) {
   }
   return score = (score / count.selector).toFixed(2);
 };
-
-css = require('css');
-
-fs = require('fs');
-
-_ = require('underscore');
 
 libraries = [
   {
@@ -149,7 +149,6 @@ countNesting = function(rules) {
 
 renderData = function(data) {
   var html;
-  console.log(data);
   html = _($('#benchmark').html()).template(data);
   return $('#benchmarks').append(html);
 };
@@ -173,6 +172,7 @@ init = function(data, lib) {
     }
   });
   lib.score = giveScore(lib.count);
+  console.log('hello');
   if ((typeof $ !== "undefined" && $ !== null)) {
     return renderData(lib);
   } else {
@@ -201,12 +201,16 @@ _(libraries).each(function(lib) {
 });
 
 
-},{"css":2,"fs":8,"underscore":7}],2:[function(require,module,exports){
+},{"css":3,"fs":2,"underscore":8}],2:[function(require,module,exports){
+
+throw new Error('fs is not implemented');
+
+},{}],3:[function(require,module,exports){
 
 exports.parse = require('css-parse');
 exports.stringify = require('css-stringify');
 
-},{"css-parse":3,"css-stringify":4}],3:[function(require,module,exports){
+},{"css-parse":4,"css-stringify":5}],4:[function(require,module,exports){
 
 module.exports = function(css, options){
   options = options || {};
@@ -675,7 +679,7 @@ function trim(str) {
   return (str || '').replace(/^\s+|\s+$/g, '');
 }
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -704,7 +708,7 @@ module.exports = function(node, options){
 };
 
 
-},{"./lib/compress":5,"./lib/identity":6}],5:[function(require,module,exports){
+},{"./lib/compress":6,"./lib/identity":7}],6:[function(require,module,exports){
 
 /**
  * Expose compiler.
@@ -868,7 +872,7 @@ Compiler.prototype.declaration = function(node){
 };
 
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 
 /**
  * Expose compiler.
@@ -1059,7 +1063,7 @@ Compiler.prototype.indent = function(level) {
   return Array(this.level).join(this.indentation || '  ');
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 //     Underscore.js 1.5.2
 //     http://underscorejs.org
 //     (c) 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -2336,9 +2340,6 @@ Compiler.prototype.indent = function(level) {
   });
 
 }).call(this);
-
-},{}],8:[function(require,module,exports){
-// nothing to see here... no file methods for the browser
 
 },{}]},{},[1])
 ;
