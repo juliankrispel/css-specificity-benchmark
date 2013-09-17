@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <ul id="benchmarks">
+    </ul>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="browser.js"></script>
+<script type="text/html" id="benchmark">
+    <li>
+    <h3><%= name %></h3>
+    <small>Size: <%= size %></small><br />
+    <strong> Specificity Score:</strong> <%= score %> <br />
+    <strong> Important:</strong> <%= count.important %> <br />
+    <ul>
+        <li>
+            <strong>Overall Rules</strong>: <%= count.rules %>
+        </li>
+        <li>
+            <strong>Overall Selectors</strong>: <%= count.selector %>
+        </li>
+
+        <li>
+            <strong>Overall Classes</strong>: <%= count.classes %>
+        </li>
+        <li>
+            <strong>Overall Attribute Selectors</strong>: <%= count.attribute %>
+        </li>
+        <li>
+            <strong>Overall Pseudo Selectors</strong>: <%= count.pseudo %>
+        </li>
+        <li>
+            <strong><%=count.media%> * Media Queries
+        </li>
+    </ul>
+    <p>
+        <% for (var i = 1; i < count.nesting.length; i++){ %>
+            <%=i%> nested level: <strong>*<%= count.nesting[i] %></strong><br />
+        <% } %>
+    </p>
+    </li>
+</script>
+</body>
+</html>

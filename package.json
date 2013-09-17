@@ -1,0 +1,8 @@
+{
+    "dependencies": {
+        "css": "*",
+        "underscore": "*",
+        "cssom": "*",
+        "browserify": "*"
+    }
+}
