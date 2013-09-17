@@ -1,5 +1,4 @@
 css = require('css')
-fs = require('fs')
 _ = require('underscore')
 
 #
@@ -39,7 +38,8 @@ giveScore = (count) ->
             score += points.nesting[key] * value
 
     #Divide overall score by selector
-    score = (score / count.selector).toFixed 2
+    #    score = (score / count.selector).toFixed 2
+    score
 
 
 libraries = [
@@ -166,7 +166,6 @@ init = (data, lib) ->
 
     # Give a score
     lib.score = giveScore lib.count
-    console.log 'hello'
 
     if($?)
         renderData(lib)
@@ -181,7 +180,8 @@ ajaxRequest = (path, callback) ->
             callback data, bytesToSize(xhr.getResponseHeader('Content-Length'))
 
 
-    else if(fs)
+    else
+        fs = require('fs')
         fs.readFile path, (err, data) ->
             callback data.toString()
 

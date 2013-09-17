@@ -1,9 +1,7 @@
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var Count, ajaxRequest, analyse, bytesToSize, countNesting, countSelectorType, countSelectors, css, fs, giveScore, init, libraries, points, renderData, _;
+var Count, ajaxRequest, analyse, bytesToSize, countNesting, countSelectorType, countSelectors, css, giveScore, init, libraries, points, renderData, _;
 
 css = require('css');
-
-fs = require('fs');
 
 _ = require('underscore');
 
@@ -48,7 +46,7 @@ giveScore = function(count) {
       score += points.nesting[key] * value;
     }
   }
-  return score = (score / count.selector).toFixed(2);
+  return score;
 };
 
 libraries = [
@@ -168,7 +166,6 @@ init = function(data, lib) {
     }
   });
   lib.score = giveScore(lib.count);
-  console.log('hello');
   if ((typeof $ !== "undefined" && $ !== null)) {
     return renderData(lib);
   } else {
@@ -177,12 +174,13 @@ init = function(data, lib) {
 };
 
 ajaxRequest = function(path, callback) {
-  var xhr;
+  var fs, xhr;
   if ((typeof window !== "undefined" && window !== null) && _(window).has('$')) {
     return xhr = $.get(path, function(data) {
       return callback(data, bytesToSize(xhr.getResponseHeader('Content-Length')));
     });
-  } else if (fs) {
+  } else {
+    fs = require('fs');
     return fs.readFile(path, function(err, data) {
       return callback(data.toString());
     });
