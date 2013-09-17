@@ -2,7 +2,10 @@
     "dependencies": {
         "css": "*",
         "underscore": "*",
-        "cssom": "*",
-        "browserify": "*"
+        "browserify": "*",
+        "coffeeify": "*"
+    },
+    "scripts": {
+        "build": "browserify -t coffeeify main.coffee > main.js"
     }
 }

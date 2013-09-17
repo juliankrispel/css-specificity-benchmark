@@ -1,26 +1,80 @@
 css = require('css')
-_ = require('underscore')
 fs = require('fs')
+_ = require('underscore')
 
 #
 # Memory for stats
 #
-count = {
-    nesting: []
-    sibling: 0
-    rules: 0
-    media: 0
-    element: 0
-    id: 0
-    class: 0
-    pseudo: 0
-    selector: 0
-    attribute: 0
+class Count
+    constructor: ->
+        @nesting = []
+        @sibling = 0
+        @rules = 0
+        @media = 0
+        @element = 0
+        @id = 0
+        @classes = 0
+        @pseudo = 0
+        @selector = 0
+        @attribute = 0
+        @important = 0
 
+points = {
+    classes: 1
+    attribute: 2
+    pseudo: 3
+    nesting: [null, 4, 6, 10, 15, 30, 50, 70, 100, 130, 160, 200, 250, 330, 400]
 }
 
+giveScore = (count) ->
+    score = 0
+    if(count.classes)
+        score += count.classes * points.classes
 
-countSelectorType = (selector) ->
+    if(count.attribute)
+        score += count.attribute * points.attribute
+
+    if(count.pseudo)
+        score += count.pseudo * points.pseudo
+
+    for value, key in count.nesting
+        if key? and value?
+            score += points.nesting[key] * value
+
+    #Divide overall score by selector
+    score = (score / count.selector).toFixed 2
+
+
+libraries = [
+    {
+        name: 'Twitter Bootstrap 3.0'
+        path: 'css-libs/bootstrap3.min.css'
+        count: new Count
+    },
+    {
+        name: 'Twitter Bootstrap 2.3.2'
+        path: 'css-libs/bootstrap2.responsive.min.css'
+        count: new Count
+    },
+    {
+        name: 'Zurb Foundation'
+        path: 'css-libs/foundation.css'
+        count: new Count
+    },
+    {
+        name: 'Pure CSS'
+        path: 'css-libs/pure.css'
+        count: new Count
+    },
+    {
+        name: 'Inuit CSS'
+        path: 'css-libs/inuit.css'
+        count: new Count
+    }
+    ]
+
+
+countSelectorType = (selector, count) ->
     count.selector++
 
     # sibling selector .element + h2 
@@ -29,7 +83,7 @@ countSelectorType = (selector) ->
 
     # class selectors .class
     if(selector.match(/\.[a-z0-9_-]*$/i)?.length > 0)
-        count.class++
+        count.classes++
 
     # pseudo selectors :pseudo
     else if(selector.match(/\:+[^,:>\s]+$/i)?.length > 0)
@@ -53,19 +107,32 @@ countSelectorType = (selector) ->
     else
         count.selector-- # Except non-matching selectors from count
 
-countSelectors = (rule) ->
+countSelectors = (rule, count) ->
     if rule.type is 'media' and rule.rules
         count.media++
-        _(rule.rules).each countSelectors
+        _(rule.rules).each (rule) ->
+            countSelectors(rule, count)
 
     if(_(rule).has('selectors') and rule.selectors.length > 0)
-        _(rule.selectors).each countSelectorType
+        _(rule.selectors).each (selector) ->
+            countSelectorType selector, count
 
+bytesToSize = (bytes) ->
+    sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
 
-analyse = (rules) ->
+    if (bytes == 0) 
+        'n/a'
+
+    else
+        i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+        Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+
+analyse = (rules, count) ->
     # Cache the amount of rules
     count.rules = rules.length
-    selectors = _(rules).each countSelectors
+
+    selectors = _(rules).each (rule) ->
+        countSelectors rule, count
 
     #    countNesting rules
 
@@ -80,24 +147,49 @@ countNesting = (rules) ->
         else if depth
             count.nesting[depth]++
 
+renderData = (data) ->
+    html = _($('#benchmark').html()).template(data)
+    $('#benchmarks').append(html)
 
-fs.readFile './bootstrap.min.css', (err, data) ->
-    rules = css.parse(data.toString()).stylesheet.rules
-    analyse rules
+
+init = (data, lib) ->
+    lib.count.important = data.match(/\!important/gi)?.length || 0 
+    rules = css.parse(data).stylesheet.rules
+    analyse rules, lib.count
 
     _(rules).each (rule) ->
         if rule.selectors
             _(rule.selectors).each (selector) ->
                 nestLevel = selector.match(/\s|\>/gi)?.length
-                if(!count.nesting[nestLevel] and nestLevel)
-                    count.nesting[nestLevel] = 1
+                if(!lib.count.nesting[nestLevel] and nestLevel)
+                    lib.count.nesting[nestLevel] = 1
                 else if nestLevel
-                    count.nesting[nestLevel]++
+                    lib.count.nesting[nestLevel]++
 
-    for own key, value of count.nesting
-        console.log key, value 
 
-    console.log count
-    console.log count.class + count.id + count.pseudo + count.attribute + count.element
+    # Give a score
+    lib.score = giveScore lib.count
+    console.log 'hello'
 
+    if($?)
+        renderData(lib)
+    else 
+        console.log lib
+
+
+
+ajaxRequest = (path, callback) ->
+    if(window? and _(window).has '$')
+        xhr = $.get path, (data) ->
+            callback data, bytesToSize(xhr.getResponseHeader('Content-Length'))
+
+
+    else if(fs)
+        fs.readFile path, (err, data) ->
+            callback data.toString()
+
+_(libraries).each (lib) ->
+    ajaxRequest lib.path, (data, size) ->
+        lib.size = size
+        init(data, lib)
 
